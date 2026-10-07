@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Recursero</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- SDK de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Iniciar Sesión / Registro</h2>
+    <form id="auth-form">
+      <input type="email" id="email" placeholder="Correo electrónico" required />
+      <input type="password" id="password" placeholder="Contraseña" required />
+      
+      <div class="buttons">
+        <button type="submit" id="btn-login">Iniciar Sesión</button>
+        <button type="button" id="btn-signup">Registrarse</button>
+      </div>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script type="module" src="scr/auth.js"></script>
+</body>
+</html>
