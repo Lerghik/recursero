@@ -1,0 +1,19 @@
+/* Normalización básica para el modelo de caja */
+body {
+  box-sizing: border-box;
+}
+
+/* Personalización del scrollbar interno para el visor de resultados en formato JSON */
+#resultado-consultas::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+#resultado-consultas::-webkit-scrollbar-thumb {
+  background: #334155; /* Color slate-700 */
+  border-radius: 4px;
+}
+
+#resultado-consultas::-webkit-scrollbar-track {
+  background: #020617; /* Color slate-950 */
+}

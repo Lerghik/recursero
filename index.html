@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase App Demo</title>
+
+  <!-- Carga del framework Tailwind CSS mediante CDN para estilos prediseñados -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Carga de la librería oficial de Supabase JavaScript desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Hoja de estilos personalizada -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- ENCABEZADO / NAVBAR PRINCIPAL -->
+  <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold text-emerald-400">Supabase Demo</h1>
+      <!-- Indicador dinámico del estado de autenticación del usuario -->
+      <div id="auth-status" class="text-sm text-slate-300">
+        No autenticado
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-4xl mx-auto w-full p-6 flex-1 flex flex-col gap-8">
+
+    <!-- SECCIÓN 1: FORMULARIO DE CONEXIÓN A SUPABASE -->
+    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm">
+      <h2 class="text-lg font-semibold text-emerald-400 mb-2">1. Configuración de Conexión</h2>
+      <p class="text-sm text-slate-400 mb-4">Ingresa tus credenciales del proyecto de Supabase:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">SUPABASE URL</label>
+          <!-- Campo para la URL del proyecto en Supabase -->
+          <input type="text" id="supabase-url" placeholder="https://xyzcompany.supabase.co" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">SUPABASE ANON KEY</label>
+          <!-- Campo para la clave pública (Anon Key) de Supabase -->
+          <input type="password" id="supabase-key" placeholder="eyJhbGciOiJIUzI1Ni..." class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+      <button id="btn-conectar" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded text-sm transition">
+        Conectar a Supabase
+      </button>
+    </section>
+
+    <!-- SECCIÓN 2: MÓDULO DE AUTENTICACIÓN -->
+    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm">
+      <h2 class="text-lg font-semibold text-emerald-400 mb-2">2. Autenticación</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Correo Electrónico</label>
+          <input type="email" id="auth-email" placeholder="usuario@example.com" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Contraseña</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+      <!-- Botones de control de sesión -->
+      <div class="flex flex-wrap gap-3">
+        <button id="btn-login" class="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded text-sm transition">
+          Iniciar Sesión
+        </button>
+        <button id="btn-signup" class="bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded text-sm transition">
+          Registrarse
+        </button>
+        <button id="btn-logout" class="bg-rose-600 hover:bg-rose-500 text-white font-medium py-2 px-4 rounded text-sm transition hidden">
+          Cerrar Sesión
+        </button>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: BASE DE DATOS (LECTURA Y ESCRITURA) -->
+    <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm">
+      <h2 class="text-lg font-semibold text-emerald-400 mb-2">3. Consultas a la tabla 'usuarios'</h2>
+      
+      <!-- Acción de Lectura -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button id="btn-leer" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded text-sm transition flex items-center gap-2">
+          <span>📖</span> Leer Registros
+        </button>
+      </div>
+
+      <!-- Formulario para Acción de Escritura -->
+      <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 mb-6">
+        <h3 class="text-sm font-semibold text-slate-300 mb-3">Agregar Nuevo Registro</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <input type="text" id="nuevo-nombre" placeholder="Nombre completo" class="bg-slate-800 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+          <input type="email" id="nuevo-email" placeholder="correo@ejemplo.com" class="bg-slate-800 border border-slate-700 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+        <button id="btn-escribir" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded text-sm transition flex items-center gap-2">
+          <span>✍️</span> Escribir Registro
+        </button>
+      </div>
+
+      <!-- Visor para mostrar la respuesta de las consultas -->
+      <h3 class="text-sm font-semibold text-slate-300 mb-2">Resultados:</h3>
+      <div id="resultado-consultas" class="bg-slate-950 p-4 rounded-lg border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto min-h-[100px] max-h-[300px]">
+        No hay datos cargados aún...
+      </div>
+    </section>
+
+  </main>
+
+  <!-- IMPORTANTE: Carga de scripts JS en orden estricto de dependencia -->
+  <script src="conexion.js"></script>
+  <script src="auth.js"></script>
+  <script src="consultas.js"></script>
+</body>
+</html>
 
