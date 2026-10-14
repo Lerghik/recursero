@@ -68,3 +68,17 @@ li {
   border-radius: 4px;
   font-size: 0.9rem;
 }
+
+.btn-warning {
+  background-color: #f39c12;
+}
+
+.btn-warning:hover {
+  background-color: #d68910;
+}
+
+.admin-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}

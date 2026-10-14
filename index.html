@@ -30,12 +30,18 @@
       <button id="btn-read">Leer Usuarios (SELECT)</button>
     </div>
 
-    <!-- SECCIÓN 2: ESCRITURA (Visible únicamente cuando el Administrador inicia sesión) -->
+    <!-- SECCIÓN 2: ESCRITURA Y EDICIÓN (Visible únicamente para el Administrador) -->
     <div id="admin-section" class="form-section" style="display: none;">
-      <h3>Insertar Nuevo Usuario (Solo Admin)</h3>
+      <h3>Gestión de Registro (Solo Admin)</h3>
+      <input type="text" id="id-input" placeholder="ID del usuario (para UPDATE / DELETE)" />
       <input type="text" id="nombre-input" placeholder="Nombre completo" />
       <input type="email" id="email-input" placeholder="Correo electrónico" />
-      <button id="btn-write">Escribir Usuario (INSERT)</button>
+      
+      <div class="admin-buttons">
+        <button id="btn-write">Escribir (INSERT)</button>
+        <button id="btn-update" class="btn-warning">Actualizar (UPDATE)</button>
+        <button id="btn-delete" class="btn-danger">Eliminar (DELETE)</button>
+      </div>
     </div>
 
     <!-- Contenedor para estados y errores -->
