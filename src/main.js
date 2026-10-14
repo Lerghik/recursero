@@ -1,43 +1,51 @@
-// Importamos el cliente de Supabase
+// ============================================================================
+// LÓGICA PRINCIPAL (SRC/MAIN.JS) - MODO LECTURA PÚBLICA / ESCRITURA ADMIN
+// ============================================================================
+
 import { supabase } from './supabase.js';
 
-// Capturamos los elementos del DOM en variables para interactuar con la interfaz de index.html
+// Selección de elementos del DOM
 const btnRead = document.getElementById('btn-read');
 const btnWrite = document.getElementById('btn-write');
 const btnLogout = document.getElementById('btn-logout');
+const linkLogin = document.getElementById('link-login');
+const adminSection = document.getElementById('admin-section');
 const nombreInput = document.getElementById('nombre-input');
 const emailInput = document.getElementById('email-input');
 const userList = document.getElementById('user-list');
 const statusMessage = document.getElementById('status-message');
 const userInfo = document.getElementById('user-info');
 
-// Función de inicialización para proteger el acceso a esta vista
-async function init() {
-  // Verificamos si existe una sesión de autenticación activa
+// Función que evalúa la sesión del usuario para condicionar la interfaz
+async function checkRole() {
   const { data: { session } } = await supabase.auth.getSession();
-  
-  // Si NO hay sesión activa, bloqueamos el acceso y redirigimos al login
-  if (!session) {
-    window.location.href = 'login.html';
-    return;
+
+  if (session) {
+    // Si hay sesión (Administrador autenticado):
+    userInfo.textContent = `Sesión iniciada como Admin: ${session.user.email}`;
+    adminSection.style.display = 'block'; // Mostramos el formulario de inserción
+    btnLogout.style.display = 'inline-block'; // Mostramos botón de salir
+    linkLogin.style.display = 'none'; // Ocultamos el enlace al login
+  } else {
+    // Si no hay sesión (Visitante público):
+    userInfo.textContent = 'Modo: Lectura Pública (Sin sesión)';
+    adminSection.style.display = 'none'; // Ocultamos el formulario de escritura
+    btnLogout.style.display = 'none';
+    linkLogin.style.display = 'inline-block';
   }
-  
-  // Si está autenticado, mostramos su dirección de correo en pantalla
-  userInfo.textContent = `Sesión activa: ${session.user.email}`;
 }
 
-// Ejecutamos la protección al cargar la página
-init();
+// Ejecutamos la comprobación de rol al cargar la pantalla
+checkRole();
 
-// ----------------------------------------------------
-// BOTÓN 1: CONSULTA DE LECTURA (SELECT)
-// ----------------------------------------------------
+// ----------------------------------------------------------------------------
+// CONSULTA DE LECTURA (PÚBLICA - FUNCIONA CON O SIN LOGIN)
+// ----------------------------------------------------------------------------
 btnRead.addEventListener('click', async () => {
-  statusMessage.textContent = 'Consultando datos...';
-  userList.innerHTML = ''; // Limpiamos el listado visible antes de cargar los datos
+  statusMessage.textContent = 'Consultando registros...';
+  userList.innerHTML = '';
 
-  // Realizamos la consulta a la tabla 'usuarios'
-  // Nota: La política RLS de SELECT permite leer incluso de forma pública
+  // La consulta SELECT ejecuta sin problemas gracias a la política "Permitir lectura pública"
   const { data, error } = await supabase
     .from('usuarios')
     .select('*');
@@ -45,9 +53,8 @@ btnRead.addEventListener('click', async () => {
   if (error) {
     statusMessage.textContent = 'Error al leer la base de datos: ' + error.message;
   } else {
-    statusMessage.textContent = `Se encontraron ${data.length} registros.`;
+    statusMessage.textContent = `Consulta realizada con éxito. Se encontraron ${data.length} registros.`;
     
-    // Iteramos sobre los resultados y agregamos un punto de lista (<li>) por cada fila encontrada
     data.forEach((user) => {
       const li = document.createElement('li');
       li.textContent = `ID: ${user.id} | Nombre: ${user.nombre} | Email: ${user.email}`;
@@ -56,50 +63,39 @@ btnRead.addEventListener('click', async () => {
   }
 });
 
-// ----------------------------------------------------
-// BOTÓN 2: CONSULTA DE ESCRITURA (INSERT)
-// ----------------------------------------------------
+// ----------------------------------------------------------------------------
+// CONSULTA DE ESCRITURA (RESTRINGIDA AL ADMINISTRADOR)
+// ----------------------------------------------------------------------------
 btnWrite.addEventListener('click', async () => {
-  // Obtenemos y limpiamos los espacios de los campos de texto
   const nombre = nombreInput.value.trim();
   const email = emailInput.value.trim();
 
-  // Validación básica del cliente
   if (!nombre || !email) {
-    statusMessage.textContent = 'Por favor, completa tanto el nombre como el email.';
+    statusMessage.textContent = 'Por favor, completa los campos de nombre y correo.';
     return;
   }
 
   statusMessage.textContent = 'Guardando registro...';
 
-  // Intentamos insertar los datos en la tabla 'usuarios'
-  // Nota: Dado que esta operación requiere rol 'authenticated', el token JWT del login activo
-  // permite que la política RLS "Permitir inserción a usuarios autenticados" valide la acción.
+  // Intentamos realizar el INSERT. Supabase validará con la regla RLS si la sesión pertenece al Admin
   const { error } = await supabase
     .from('usuarios')
     .insert([{ nombre: nombre, email: email }]);
 
   if (error) {
-    statusMessage.textContent = 'Error al insertar: ' + error.message;
+    statusMessage.textContent = 'Error al guardar: ' + error.message;
   } else {
-    statusMessage.textContent = '¡Usuario insertado con éxito!';
-    
-    // Limpiamos los campos del formulario
+    statusMessage.textContent = '¡Registro guardado correctamente por el administrador!';
     nombreInput.value = '';
     emailInput.value = '';
-    
-    // Disparamos una relectura para actualizar la lista mostrada inmediatamente
-    btnRead.click();
+    btnRead.click(); // Recargamos el listado visible
   }
 });
 
-// ----------------------------------------------------
-// BOTÓN DE CERRAR SESIÓN
-// ----------------------------------------------------
+// ----------------------------------------------------------------------------
+// CERRAR SESIÓN DEL ADMINISTRADOR
+// ----------------------------------------------------------------------------
 btnLogout.addEventListener('click', async () => {
-  // Cerramos la sesión en Supabase y eliminamos las cookies/tokens locales
   await supabase.auth.signOut();
-  
-  // Redirigimos al formulario de inicio de sesión
-  window.location.href = 'login.html';
+  window.location.reload(); // Recargamos la página para volver al modo lectura pública
 });

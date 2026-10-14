@@ -3,40 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Principal - Recursero</title>
+  <title>Consulta de Usuarios - Recursero</title>
+  
+  <!-- Estilos globales -->
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- SDK de Supabase desde la CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Gestión de Usuarios</h1>
-      <button id="btn-logout" class="btn-danger">Cerrar Sesión</button>
+      <!-- Botón dinámico que dirigiá al Login o permitirá Cerrar Sesión según el estado -->
+      <div id="auth-actions">
+        <a id="link-login" href="login.html" class="btn-link">Acceso Administrador</a>
+        <button id="btn-logout" class="btn-danger" style="display: none;">Cerrar Sesión</button>
+      </div>
     </header>
 
-    <p id="user-info"></p>
+    <!-- Muestra el estado actual del acceso (Público o Administrador) -->
+    <p id="user-info">Modo: Lectura Pública</p>
 
+    <!-- SECCIÓN 1: CONSULTA PÚBLICA (Acceso para cualquier usuario sin login) -->
     <div class="actions">
-      <!-- Botón 1: Leer/Consultar -->
       <button id="btn-read">Leer Usuarios (SELECT)</button>
     </div>
 
-    <!-- Sección de Escritura -->
-    <div class="form-section">
-      <h3>Insertar Nuevo Usuario</h3>
+    <!-- SECCIÓN 2: ESCRITURA (Visible únicamente cuando el Administrador inicia sesión) -->
+    <div id="admin-section" class="form-section" style="display: none;">
+      <h3>Insertar Nuevo Usuario (Solo Admin)</h3>
       <input type="text" id="nombre-input" placeholder="Nombre completo" />
       <input type="email" id="email-input" placeholder="Correo electrónico" />
-      <!-- Botón 2: Escribir/Insertar -->
       <button id="btn-write">Escribir Usuario (INSERT)</button>
     </div>
 
+    <!-- Contenedor para estados y errores -->
     <p id="status-message"></p>
 
-    <!-- Resultados -->
+    <!-- Despliegue de resultados del SELECT -->
     <h3>Resultados:</h3>
     <ul id="user-list"></ul>
   </div>
 
+  <!-- Carga de la lógica principal -->
   <script type="module" src="src/main.js"></script>
 </body>
 </html>
